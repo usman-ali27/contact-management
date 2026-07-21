@@ -1,0 +1,105 @@
+<section class="contacts" aria-label="Contacts">
+  <header class="contacts__header">
+    <button type="button" class="hbtn"  aria-label="Toggle contacts sidebar">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <h1 class="contacts__title">Contacts</h1>
+
+    <div class="contacts__nav">
+      <button type="button" class="hbtn"  aria-label="Previous contact">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 6l-6 6 6 6" />
+        </svg>
+      </button>
+      <button type="button" class="hbtn" aria-label="Next contact">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="search">
+    <label class="search__label" for="contact-search">Search for a contact</label>
+    <div class="search__field">
+      <input
+        id="contact-search"
+        class="search__input"
+        type="search"
+        placeholder="Name, email or phone number"
+        [value]="searchTerm()"
+        (input)="onSearch($event)"
+      />
+      <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="state" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>Loading contacts…</p>
+    </div>
+  } @else if (error()) {
+    <div class="state state--error" role="alert">
+      <p>{{ error() }}</p>
+      <button type="button" class="retry" (click)="onRetry()">Retry</button>
+    </div>
+  } @else {
+    <ul class="list" role="listbox" aria-label="Contact list">
+      @for (contact of filteredContacts(); track contact.id) {
+        <li>
+          <button
+            type="button"
+            class="row"
+            role="option"
+            [class.row--active]="selectedId() === contact.id"
+            [attr.aria-selected]="selectedId() === contact.id"
+            (click)="onSelect(contact)"
+          >
+            <span class="avatar" [attr.data-presence]="presence(contact)">
+              @if (imageFailed(contact)) {
+                <span class="avatar__initials" aria-hidden="true">{{ initials(contact) }}</span>
+              } @else {
+                <img
+                  class="avatar__img"
+                  [src]="contact.profileImage"
+                  [alt]="fullName(contact)"
+                  loading="lazy"
+                  (error)="onImageError(contact)"
+                />
+              }
+              <span class="avatar__dot" aria-hidden="true"></span>
+            </span>
+
+            <span class="row__text">
+              <span class="row__name">{{ fullName(contact) }}</span>
+              <span class="row__sub">{{ subtitle(contact) }}</span>
+            </span>
+
+            <span class="row__actions" aria-hidden="true">
+              <span class="row__action">
+                <svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.9-.9L3 21l1.9-5.6A8.5 8.5 0 1 1 21 11.5Z"/></svg>
+              </span>
+              <span class="row__action">
+                <svg viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M22 16.9v2.9a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2H7a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.6a2 2 0 0 1-.5 2.1L7.9 9.8a16 16 0 0 0 6 6l1.4-1.2a2 2 0 0 1 2.1-.5c.8.3 1.7.5 2.6.6A2 2 0 0 1 22 16.9Z"/></svg>
+              </span>
+              <span class="row__action">
+                <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></svg>
+              </span>
+            </span>
+          </button>
+        </li>
+      } @empty {
+        <li class="state">
+          <p>No contacts match “{{ searchTerm() }}”.</p>
+        </li>
+      }
+    </ul>
+  }
+</section>
